@@ -8,7 +8,7 @@ import {
   streamUI,
   createStreamableValue
 } from 'ai/rsc'
-import { openai } from '@ai-sdk/openai'
+import { createOpenAI } from '@ai-sdk/openai'
 
 import {
   spinner,
@@ -35,6 +35,11 @@ import { saveChat } from '@/app/actions'
 import { SpinnerMessage, UserMessage } from '@/components/stocks/message'
 import { Chat, Message } from '@/lib/types'
 import { auth } from '@/auth'
+
+const groq = createOpenAI({
+  baseURL: 'https://api.groq.com/openai/v1',
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 async function confirmPurchase(symbol: string, price: number, amount: number) {
   'use server'
@@ -127,10 +132,11 @@ async function submitUserMessage(content: string) {
   let textNode: undefined | React.ReactNode
 
   const result = await streamUI({
-    model: openai('gpt-3.5-turbo'),
+    model: groq('llama-3.1-70b-versatile'),
     initial: <SpinnerMessage />,
     system: `\
-    You are a stock trading conversation bot and you can help users buy stocks, step by step.
+    You are a General Chatbot Assistant.
+    You are also a stock trading conversation bot and you can help users buy stocks, step by step.
     You and the user can discuss stock prices and the user can adjust the amount of stocks they want to buy, or place an order, in the UI.
     
     Messages inside [] means that it's a UI element or a user event. For example:
